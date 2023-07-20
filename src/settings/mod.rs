@@ -37,6 +37,7 @@ pub struct Settings {
     pub branch_whitelist: Vec<String>,
     pub tag_prefix: Option<String>,
     pub skip_ci: Option<String>,
+    pub shell: Option<HookShell>,
     pub pre_bump_hooks: Vec<String>,
     pub post_bump_hooks: Vec<String>,
     pub pre_package_bump_hooks: Vec<String>,
@@ -58,6 +59,7 @@ impl Default for Settings {
             branch_whitelist: vec![],
             tag_prefix: None,
             skip_ci: None,
+            shell: None,
             pre_bump_hooks: vec![],
             post_bump_hooks: vec![],
             pre_package_bump_hooks: vec![],
@@ -257,6 +259,15 @@ pub fn changelog_path() -> &'static PathBuf {
 
 #[derive(Debug, Deserialize, Serialize, Default, Eq, PartialEq)]
 #[serde(deny_unknown_fields)]
+pub struct HookShell {
+    #[serde(default)]
+    pub executable: String,
+    #[serde(default)]
+    pub args: Vec<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Default, Eq, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct BumpProfile {
     #[serde(default)]
     pub pre_bump_hooks: Vec<String>,
@@ -374,6 +385,14 @@ impl Settings {
 }
 
 impl Hooks for Settings {
+    fn get_shell(&self) -> Option<&HookShell> {
+        if let Some(shell) = &self.shell {
+            Some(&shell)
+        } else {
+            None
+        }
+    }
+
     fn bump_profiles(&self) -> &HashMap<String, BumpProfile> {
         &self.bump_profiles
     }
@@ -388,6 +407,10 @@ impl Hooks for Settings {
 }
 
 impl Hooks for MonoRepoPackage {
+    fn get_shell(&self) -> Option<&HookShell> {
+        None
+    }
+
     fn bump_profiles(&self) -> &HashMap<String, BumpProfile> {
         &self.bump_profiles
     }

@@ -48,7 +48,7 @@ mod tests {
 
     use crate::CocoGitto;
 
-    use crate::settings::{GitHook, GitHookType, Settings};
+    use crate::settings::{GitHook, GitHookType, HookShell, Settings};
     use anyhow::Result;
     use cmd_lib::run_cmd;
     use sealed_test::prelude::*;
@@ -129,6 +129,10 @@ exit 1"#
 
         let settings = Settings {
             git_hooks,
+            shell: Some(HookShell {
+                executable: "sh".to_string(),
+                args: vec![],
+            }),
             ..Default::default()
         };
 
