@@ -129,10 +129,6 @@ exit 1"#
 
         let settings = Settings {
             git_hooks,
-            shell: Some(HookShell {
-                executable: "sh".to_string(),
-                args: vec![],
-            }),
             ..Default::default()
         };
 
