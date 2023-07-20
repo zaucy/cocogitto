@@ -568,7 +568,6 @@ mod test {
         Ok(())
     }
 
-    #[cfg(target_family = "unix")]
     #[sealed_test]
     fn shell_environment_variables() -> Result<()> {
         std::env::set_var("TEST_ENV_VAR", "example");
