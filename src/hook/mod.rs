@@ -7,6 +7,7 @@ use std::process::{Command, Output};
 use std::str::FromStr;
 use std::{fmt, path};
 
+use crate::hook::parser::VersionAccessToken;
 use crate::Tag;
 use parser::Token;
 
@@ -88,6 +89,7 @@ impl VersionSpan {
         }?;
 
         let mut amount = 1;
+        let mut version_access_token: Option<VersionAccessToken> = None;
 
         while let Some(token) = self.tokens.pop_front() {
             match token {
@@ -109,11 +111,22 @@ impl VersionSpan {
                 // set  build metadata and prerelease
                 Token::PreRelease(pre_release) => tag.version.pre = pre_release,
                 Token::BuildMetadata(build) => tag.version.build = build,
+                Token::VersionAccess(version_access) => {
+                    version_access_token = Some(version_access);
+                }
                 _ => unreachable!("Unexpected parsing error"),
             }
         }
 
-        Ok(tag.to_string())
+        if let Some(version_access) = version_access_token {
+            Ok(match version_access {
+                VersionAccessToken::Major => tag.version.major.to_string(),
+                VersionAccessToken::Minor => tag.version.minor.to_string(),
+                VersionAccessToken::Patch => tag.version.patch.to_string(),
+            })
+        } else {
+            Ok(tag.to_string())
+        }
     }
 }
 
